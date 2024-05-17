@@ -53,6 +53,8 @@ async function processImage(img) {
     // Draw the largest contour
     if (largestContour) {
         const boundingRect = cv.boundingRect(largestContour);
+
+        // Draw red box on the original image
         context.strokeStyle = 'red';
         context.lineWidth = 2;
         context.strokeRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
@@ -61,6 +63,8 @@ async function processImage(img) {
         const cropped = src.roi(boundingRect);
         cv.imshow(canvas, cropped);
         cropped.delete();
+
+        saveButton.hidden = false;
     }
 
     // Clean up
