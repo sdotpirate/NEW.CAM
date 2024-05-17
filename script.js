@@ -38,15 +38,24 @@ async function processImage(img) {
     const hierarchy = new cv.Mat();
     cv.findContours(edges, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
-    // Find the largest contour which is assumed to be the document
+    // Filter contours by aspect ratio and size
     let maxArea = 0;
     let largestContour = null;
+    const targetAspectRatio = 8.5 / 11;
+    const tolerance = 0.2; // 20% tolerance for aspect ratio
+    const minArea = img.width * img.height * 0.1; // minimum area threshold
+
     for (let i = 0; i < contours.size(); i++) {
         const contour = contours.get(i);
-        const area = cv.contourArea(contour);
-        if (area > maxArea) {
-            maxArea = area;
-            largestContour = contour;
+        const rect = cv.boundingRect(contour);
+        const aspectRatio = rect.width / rect.height;
+        const area = rect.width * rect.height;
+
+        if (Math.abs(aspectRatio - targetAspectRatio) < tolerance && area > minArea) {
+            if (area > maxArea) {
+                maxArea = area;
+                largestContour = contour;
+            }
         }
     }
 
