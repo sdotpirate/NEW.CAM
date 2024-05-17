@@ -59,10 +59,8 @@ async function processImage(img) {
         context.lineWidth = 2;
         context.strokeRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
 
-        // Crop the image
-        const cropped = src.roi(boundingRect);
-        cv.imshow(canvas, cropped);
-        cropped.delete();
+        // Save the coordinates for cropping
+        canvas.dataset.boundingRect = JSON.stringify(boundingRect);
 
         saveButton.hidden = false;
     }
@@ -77,8 +75,19 @@ async function processImage(img) {
 }
 
 saveButton.addEventListener('click', () => {
+    const boundingRect = JSON.parse(canvas.dataset.boundingRect);
+    const croppedCanvas = document.createElement('canvas');
+    const croppedContext = croppedCanvas.getContext('2d');
+
+    croppedCanvas.width = boundingRect.width;
+    croppedCanvas.height = boundingRect.height;
+    croppedContext.drawImage(canvas,
+        boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height,
+        0, 0, boundingRect.width, boundingRect.height
+    );
+
     const link = document.createElement('a');
     link.download = 'cropped-image.png';
-    link.href = canvas.toDataURL();
+    link.href = croppedCanvas.toDataURL();
     link.click();
 });
