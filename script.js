@@ -55,6 +55,7 @@ async function processImage(img) {
         const boundingRect = cv.boundingRect(largestContour);
 
         // Draw red box on the original image
+        context.drawImage(img, 0, 0);  // Redraw the original image to remove previous drawings
         context.strokeStyle = 'red';
         context.lineWidth = 2;
         context.strokeRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
@@ -72,7 +73,27 @@ async function processImage(img) {
     edges.delete();
     contours.delete();
     hierarchy.delete();
+
+    // Adjust canvas size to fit the screen
+    adjustCanvasSize();
 }
+
+function adjustCanvasSize() {
+    const container = document.querySelector('.canvas-container');
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    const aspectRatio = canvas.width / canvas.height;
+
+    if (containerWidth / containerHeight > aspectRatio) {
+        canvas.style.width = 'auto';
+        canvas.style.height = '100%';
+    } else {
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+    }
+}
+
+window.addEventListener('resize', adjustCanvasSize);
 
 saveButton.addEventListener('click', () => {
     const boundingRect = JSON.parse(canvas.dataset.boundingRect);
